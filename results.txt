@@ -1,0 +1,131 @@
+﻿========================================================================================
+PART 1: the paper's datasets (everyone arrives at time 0)
+========================================================================================
+Data    Algorithm               1st rnd   total  finish  avg wait  valid
+Data 1  Traditional                  85      85      30      12.4   True
+Data 1  DBDAA (cycle)                10      10      30      12.8   True
+Data 1  DBDAA (idle retry)           10      10      30      12.8   True
+Data 1  Enhanced (cycle)             10      10      30      12.8   True
+Data 1  Enhanced + idle              10      10      30      12.8   True
+
+Data 2  Traditional                 100     100      30      13.3   True
+Data 2  DBDAA (cycle)                36      38      34      14.2   True
+Data 2  DBDAA (idle retry)           36      38      30      13.4   True
+Data 2  Enhanced (cycle)             36      38      34      14.2   True
+Data 2  Enhanced + idle              36      38      30      13.4   True
+
+Data 3  Traditional                 125     125      30      11.5   True
+Data 3  DBDAA (cycle)                70      84      37      12.9   True
+Data 3  DBDAA (idle retry)           70      84      30      11.5   True
+Data 3  Enhanced (cycle)             52      62      37      12.9   True
+Data 3  Enhanced + idle              52      62      30      11.5   True
+
+========================================================================================
+PART 2: scale test - comparisons as the number of processes grows (all arrive at 0)
+        'Old gate' = first version of aging (waited >= 30); 'Enhanced' = final version
+========================================================================================
+
+tight systems
+     n  Traditional     DBDAA  Enhanced(check)   Old gate   Enhanced
+    10          145        69               63         64         63
+    25          825       247              214        223        214
+    50         3368       717              573        612        573
+   100        13047      2239             1588       1739       1588
+   200        51310      8474             5653       6349       5653
+
+loose systems
+     n  Traditional     DBDAA  Enhanced(check)   Old gate   Enhanced
+    10          128        33               33         34         33
+    25          752       118              118        122        118
+    50         2832       353              344        362        344
+   100        12253      1314             1156       1242       1156
+   200        49857      4434             3423       3767       3423
+
+========================================================================================
+PART 3: random systems, staggered arrivals (n = 30, 200 systems per table)
+        'Naive aging' and 'Old gate' are our first attempts, shown for the record
+========================================================================================
+
+very tight
+Algorithm                 comps  avg wait  max wait   finish
+DBDAA (cycle)             189.5      48.1     134.2    143.2
+DBDAA (idle retry)        189.4      37.4      97.5    105.2
+Check only + idle         154.1      37.4      97.5    105.2
+Naive aging + idle        291.4      37.5      97.5    105.2
+Old gate + idle           161.8      37.4      97.5    105.2
+Enhanced + idle           157.6      37.4      97.5    105.2
+Enhanced + idle vs DBDAA (idle retry), per system: -31.8 +- 1.9 comparisons (better in 200, worse in 0, equal in 0 systems)
+
+tight
+Algorithm                 comps  avg wait  max wait   finish
+DBDAA (cycle)             191.1      49.7     140.3    150.1
+DBDAA (idle retry)        191.1      37.6      97.5    105.4
+Check only + idle         163.1      37.6      97.5    105.4
+Naive aging + idle        263.3      37.6      97.6    105.4
+Old gate + idle           171.6      37.6      97.5    105.4
+Enhanced + idle           166.7      37.6      97.5    105.4
+Enhanced + idle vs DBDAA (idle retry), per system: -24.3 +- 2.6 comparisons (better in 178, worse in 19, equal in 3 systems)
+
+slightly tight
+Algorithm                 comps  avg wait  max wait   finish
+DBDAA (cycle)             161.4      45.8     128.3    137.7
+DBDAA (idle retry)        161.4      37.6      97.1    105.1
+Check only + idle         150.8      37.6      97.1    105.1
+Naive aging + idle        210.3      37.6      97.0    105.1
+Old gate + idle           158.1      37.6      97.1    105.1
+Enhanced + idle           154.3      37.6      97.1    105.1
+Enhanced + idle vs DBDAA (idle retry), per system: -7.2 +- 2.0 comparisons (better in 121, worse in 75, equal in 4 systems)
+
+loose
+Algorithm                 comps  avg wait  max wait   finish
+DBDAA (cycle)             115.1      40.9     110.6    120.2
+DBDAA (idle retry)        115.1      37.5      96.6    105.0
+Check only + idle         115.3      37.5      96.6    105.0
+Naive aging + idle        150.6      37.5      96.2    105.0
+Old gate + idle           121.1      37.5      96.6    105.0
+Enhanced + idle           118.6      37.5      96.6    105.0
+Enhanced + idle vs DBDAA (idle retry), per system: +3.5 +- 0.7 comparisons (better in 24, worse in 172, equal in 4 systems)
+
+========================================================================================
+PART 4: starvation test - 4 heavy processes + 40 small ones arriving steadily
+        (300 runs; resources are loose here)
+========================================================================================
+Algorithm                 comps  avg wait  max wait  heavy wait   finish
+DBDAA (cycle)              44.0      18.1     108.8        87.5    111.7
+DBDAA (idle retry)         44.0      18.1     108.8        87.5    111.7
+Check only + idle          44.0      18.1     108.8        87.5    111.7
+Naive aging + idle         44.0      19.2      32.8        23.2    111.7
+Old gate + idle            44.0      19.1      37.8        28.7    111.7
+Enhanced + idle            44.0      19.3      34.5        16.1    111.7
+
+========================================================================================
+PART 5: sensitivity of the chosen settings
+========================================================================================
+
+5a. Adaptive check: change in comparisons vs DBDAA, for (streak_limit, probe_every)
+setting   Data 3         very tight     tight          slightly tight loose          
+(1,1)     -17.9%         -5.6%          +1.0%          +7.5%          +8.7%          
+(1,2)     -25.0%         -16.5%         -9.3%          -0.5%          +5.4%          
+(1,4)     -28.6%         -22.0%         -14.5%         -4.4%          +4.7%          
+(2,1)     -16.7%         -5.5%          -0.6%          +2.3%          +1.2%          
+(2,2)     -22.6%         -14.6%         -7.6%          -1.8%          +0.7%          
+(2,4)     -26.2%         -19.2%         -11.0%         -3.8%          +0.5%             <- chosen
+(3,1)     -15.5%         -5.1%          -1.1%          +0.4%          +0.1%          
+(3,2)     -21.4%         -12.0%         -5.6%          -1.3%          +0.0%          
+(3,4)     -23.8%         -15.5%         -7.8%          -2.1%          +0.0%          
+
+5b. Gated aging: (overtake_limit, probe_gap)
+    DBDAA (idle retry) reference: heavy wait 86.3, max wait 109.0 | tight systems comps 184.7
+setting        heavy wait   max wait  tight systems comps
+( 3, 1)             11.7       33.4                189.2
+( 3, 5)             11.7       33.4                187.5
+( 3,10)             11.7       33.4                186.7
+( 5, 1)             15.8       34.5                190.3
+( 5, 5)             15.8       34.5                188.2   <- chosen
+( 5,10)             15.8       34.5                187.4
+(10, 1)             26.0       37.0                189.8
+(10, 5)             26.0       37.0                187.8
+(10,10)             26.0       37.0                187.0
+(20, 1)             46.5       60.0                184.8
+(20, 5)             46.5       60.0                184.7
+(20,10)             46.5       60.0                184.7
